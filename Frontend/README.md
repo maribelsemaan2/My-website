@@ -1,4 +1,8 @@
-# React + Vite
+# Ignis AI Frontend
+
+Web app for Ignis AI (React 19 + Vite).
+
+## About the template
 
 This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
 
