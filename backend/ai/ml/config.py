@@ -1,6 +1,6 @@
 """Shared paths and constants."""
 from pathlib import Path
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parent
 RAW = ROOT / "dataset" / "raw"
 PROCESSED = ROOT / "dataset" / "processed"
 MODELS = ROOT / "models"

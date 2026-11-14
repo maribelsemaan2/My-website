@@ -1,12 +1,12 @@
 """Create the report charts. Every chart says whether it shows observed data or model output.
-Run: python ml/visualize.py"""
+Run from the repo root: python -m backend.ai.ml.visualize"""
 import json
 import numpy as np, pandas as pd, matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from sklearn.inspection import permutation_importance
-from config import PROCESSED, RESULTS, TARGET, FEATURES
-from predict import predict, _load
+from .config import PROCESSED, RESULTS, TARGET, FEATURES
+from .predict import predict, _load
 
 def save(fig, name): fig.tight_layout(); fig.savefig(RESULTS / name, dpi=140); plt.close(fig)
 

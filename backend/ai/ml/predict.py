@@ -1,13 +1,23 @@
 """Load the saved model and predict spread rate for one scenario, with out-of-range warnings.
-Run: python ml/predict.py --o2 18.5 --flow 2 --diameter 0.64"""
-import argparse, joblib
+Run from the repo root: python -m backend.ai.ml.predict --o2 18.5 --flow 2 --diameter 0.64"""
+import argparse, joblib, sklearn
 import pandas as pd
-from config import MODELS
+from .config import MODELS
 
 _BUNDLE = None
 def _load():
     global _BUNDLE
-    if _BUNDLE is None: _BUNDLE = joblib.load(MODELS / "flame_spread_model.joblib")
+    if _BUNDLE is None:
+        path = MODELS / "flame_spread_model.joblib"
+        bundle = joblib.load(path) if path.exists() else None
+        # A pickled model is only guaranteed to load with the scikit-learn version that saved it.
+        # If that differs (or the file is missing), retrain from the bundled dataset (takes ~seconds).
+        if bundle is None or bundle.get("sklearn_version") != sklearn.__version__:
+            from .train_model import train
+            print("[ml] retraining model for scikit-learn", sklearn.__version__)
+            train()
+            bundle = joblib.load(path)
+        _BUNDLE = bundle
     return _BUNDLE
 
 def predict(o2_percent: float, opposed_flow_cm_s: float, rod_diameter_cm: float) -> dict:

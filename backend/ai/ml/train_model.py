@@ -1,6 +1,6 @@
 """Compare simple models with leave-one-SAMPLE-out cross-validation, keep the best, save it.
-Run: python ml/train_model.py"""
-import joblib, json
+Run from the repo root: python -m backend.ai.ml.train_model"""
+import joblib, json, sklearn
 import numpy as np, pandas as pd
 from sklearn.dummy import DummyRegressor
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
@@ -9,8 +9,8 @@ from sklearn.model_selection import LeaveOneGroupOut, cross_val_predict
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_squared_error
-from config import PROCESSED, MODELS, RESULTS, TARGET, GROUP, FEATURES, SOURCE
-from feature_engineering import build_features
+from .config import PROCESSED, MODELS, RESULTS, TARGET, GROUP, FEATURES, SOURCE
+from .feature_engineering import build_features
 
 def candidates():
     return {
@@ -21,7 +21,7 @@ def candidates():
         "Gradient Boosting": GradientBoostingRegressor(n_estimators=150, max_depth=2, learning_rate=0.05, random_state=42),
     }
 
-if __name__ == "__main__":
+def train() -> None:
     MODELS.mkdir(exist_ok=True); RESULTS.mkdir(exist_ok=True)
     df = pd.read_csv(PROCESSED / "microgravity_clean.csv")
     X, y, groups = build_features(df), df[TARGET], df[GROUP]
@@ -42,7 +42,12 @@ if __name__ == "__main__":
     joblib.dump({"model": final, "features": FEATURES, "model_name": best, "cv_residual_sd_mm_s": resid_sd,
                  "train_ranges": {c: [float(X[c].min()), float(X[c].max())] for c in FEATURES},
                  "per_diameter_ranges": {str(d): {"o2_percent": [float(g.o2_percent.min()), float(g.o2_percent.max())], "opposed_flow_cm_s": [float(g.opposed_flow_cm_s.min()), float(g.opposed_flow_cm_s.max())]} for d, g in df.groupby("rod_diameter_cm")},
+                 "sklearn_version": sklearn.__version__,
                  "n_rows": int(len(df)), "n_samples": int(groups.nunique()), "source": SOURCE},
                 MODELS / "flame_spread_model.joblib")
     json.dump({"selected": best}, open(RESULTS / "selected_model.json", "w"))
     print("Saved models/flame_spread_model.joblib")
+
+
+if __name__ == "__main__":
+    train()
