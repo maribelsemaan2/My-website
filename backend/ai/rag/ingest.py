@@ -9,7 +9,7 @@ import json
 import re
 from html import unescape
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import urljoin, urlparse
 
 import requests
 from bs4 import BeautifulSoup
@@ -40,23 +40,70 @@ def resource_links() -> list[str]:
             if urlparse(u).hostname.endswith(ALLOWED_HOSTS) and not any(x in u for x in SKIP_URLS)]
 
 
-def fetch_web_pages() -> list[dict]:
-    pages = []
-    for url in resource_links():
-        try:
-            r = requests.get(url, timeout=30, headers={"User-Agent": "ignis-ai-rag"})
-            r.raise_for_status()
-        except requests.RequestException as e:
-            print(f"skip {url}: {e}")
-            continue
-        soup = BeautifulSoup(r.text, "html.parser")
-        for t in soup(["script", "style", "nav", "header", "footer", "aside"]):
-            t.decompose()
-        root = soup.find("main") or soup.body or soup
-        text = " ".join(p.get_text(" ", strip=True) for p in root.find_all(["p", "li", "h2", "h3"]))
-        title = soup.title.get_text(strip=True) if soup.title else url
-        if len(text) > 300:
-            pages.append({"url": url, "title": title, "text": text})
+MAX_PAGES = 60
+MAX_PDF_BYTES = 25_000_000
+
+
+def _wanted_sublink(url: str) -> bool:
+    """Which links found *inside* a resource page are worth following (depth 1)."""
+    u = urlparse(url)
+    if not (u.hostname or "").endswith(ALLOWED_HOSTS):
+        return False
+    path = u.path.lower()
+    if path.endswith(".pdf"):
+        return True  # experiment fact sheets, the combustion mini-book, ...
+    if path.endswith((".epub", ".jpg", ".png", ".gif", ".svg", ".xml")) or "/feed" in path:
+        return False
+    return "combustion" in path  # sub-pages of the combustion-science / FCF sections
+
+
+def _page_text(url: str, r: requests.Response) -> tuple[str, str, str]:
+    """Returns (title, text, html). PDFs are parsed with pypdf; HTML with BeautifulSoup."""
+    if url.split("?")[0].lower().endswith(".pdf"):
+        from io import BytesIO
+        from pypdf import PdfReader
+        pdf = PdfReader(BytesIO(r.content))
+        text = " ".join((pg.extract_text() or "") for pg in pdf.pages)
+        title = (pdf.metadata.title if pdf.metadata and pdf.metadata.title else url.split("/")[-1].split("?")[0])
+        return title, " ".join(text.split()), ""
+    soup = BeautifulSoup(r.text, "html.parser")
+    for t in soup(["script", "style", "nav", "header", "footer", "aside"]):
+        t.decompose()
+    root = soup.find("main") or soup.body or soup
+    text = " ".join(p.get_text(" ", strip=True) for p in root.find_all(["p", "li", "h2", "h3"]))
+    title = soup.title.get_text(strip=True) if soup.title else url
+    return title, text, str(root)
+
+
+def fetch_web_pages(depth: int = 1) -> list[dict]:
+    """Fetch the Resources-tab links, then follow their sublinks `depth` levels (PDFs included)."""
+    pages, seen = [], set()
+    frontier = resource_links()
+    for level in range(depth + 1):
+        next_frontier = []
+        for url in frontier:
+            key = url.split("?")[0].rstrip("/")
+            if key in seen or len(pages) >= MAX_PAGES:
+                continue
+            seen.add(key)
+            try:
+                r = requests.get(url, timeout=60, headers={"User-Agent": "ignis-ai-rag"})
+                r.raise_for_status()
+                if len(r.content) > MAX_PDF_BYTES:
+                    continue
+                title, text, html = _page_text(url, r)
+            except Exception as e:
+                print(f"skip {url}: {e}")
+                continue
+            if len(text) > 300:
+                pages.append({"url": url, "title": title, "text": text, "depth": level})
+            # only dig into on-topic pages; Apollo/Mir/spinoff pages link to huge, off-topic transcripts
+            if level < depth and html and "combustion" in url.lower():
+                for a in BeautifulSoup(html, "html.parser").find_all("a", href=True):
+                    link = urljoin(url, a["href"]).split("#")[0]
+                    if _wanted_sublink(link):
+                        next_frontier.append(link)
+        frontier = next_frontier
     return pages
 
 
