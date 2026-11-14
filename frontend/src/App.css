@@ -47,6 +47,15 @@ button {
   cursor: pointer;
 }
 
+/* Override Vite-template defaults from index.css that boxed the app at 1126px */
+#root {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  border-inline: none;
+  text-align: left;
+}
+
 .app {
   min-height: 100vh;
   background: var(--bg);
@@ -342,5 +351,34 @@ button {
 
   .env-badge {
     align-self: flex-start;
+  }
+}
+
+@media (max-width: 560px) {
+  .brand-title {
+    font-size: 13px;
+  }
+  .tab {
+    padding: 0 12px;
+    font-size: 13px;
+  }
+  .nav-right {
+    gap: 8px;
+  }
+  .gravity-option {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+  .status-badge {
+    padding: 7px 12px;
+    font-size: 12px;
+  }
+  .hero-title {
+    font-size: 26px;
+  }
+  .env-badge {
+    padding: 10px 14px;
+    font-size: 11px;
+    white-space: normal;
   }
 }
