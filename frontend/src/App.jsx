@@ -1,122 +1,117 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import { useState } from 'react';
+import './App.css';
 
-function App() {
-  const [count, setCount] = useState(0)
+const TABS = [
+  { id: 'research', label: '1. Research Explorer' },
+  { id: 'predictive', label: '2. Predictive Lab' },
+  
+];
 
+const GRAVITY_OPTIONS = [
+
+  { id: 'moon', label: 'Moon Base 0.16g', badge: 'LUNAR HABITAT / 0.16g' },
+  { id: 'mars', label: 'Mars 0.38g', badge: 'MARS SURFACE / 0.38g' },
+];
+
+const PAGE_META = {
+  research: {
+    section: 'RESEARCH OPERATIONS / 01',
+    title: 'Research Explorer',
+    subtitle: 'Browse the evidence. Compare the experiments.',
+  },
+  predictive: {
+    section: 'SIMULATION OPERATIONS / 02',
+    title: 'Predictive Lab',
+    subtitle: 'Model the cabin. Understand the flame. Quantify the risk.',
+  },
+  
+};
+
+function LogoMark() {
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+    <svg
+      className="logo-mark"
+      width="14"
+      height="26"
+      viewBox="0 0 14 26"
+      aria-hidden="true"
+    >
+      <rect x="0" y="2" width="4" height="22" rx="2" fill="#22D3EE" />
+      <rect x="8" y="7" width="4" height="17" rx="2" fill="#F97316" />
+    </svg>
+  );
 }
 
-export default App
+export default function App() {
+  const [activeTab, setActiveTab] = useState('predictive');
+  const [gravity, setGravity] = useState('moon');
+
+  const activeGravity = GRAVITY_OPTIONS.find((g) => g.id === gravity);
+  const page = PAGE_META[activeTab];
+
+  return (
+    <div className="app">
+      <header className="navbar">
+        <div className="brand">
+          <LogoMark />
+          <div className="brand-text">
+            <span className="brand-title">FLAME IN FREEFALL</span>
+            <span className="brand-subtitle">// PSI-SI</span>
+          </div>
+        </div>
+
+        <nav className="tabs" aria-label="Primary">
+          {TABS.map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              className={`tab ${activeTab === tab.id ? 'tab--active' : ''}`}
+              aria-current={activeTab === tab.id ? 'page' : undefined}
+              onClick={() => setActiveTab(tab.id)}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </nav>
+
+        <div className="nav-right">
+          <div className="gravity" role="group" aria-label="Gravity environment">
+            {GRAVITY_OPTIONS.map((opt) => (
+              <button
+                key={opt.id}
+                type="button"
+                className={`gravity-option ${
+                  gravity === opt.id ? 'gravity-option--active' : ''
+                }`}
+                aria-pressed={gravity === opt.id}
+                onClick={() => setGravity(opt.id)}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="status-badge">
+            <span className="dot dot--green" aria-hidden="true" />
+            <span>NASA PSI Synced</span>
+          </div>
+        </div>
+      </header>
+
+      <section className="hero">
+        <div className="hero-left">
+          <span className="hero-label">{page.section}</span>
+          <div className="hero-heading-row">
+            <h1 className="hero-title">{page.title}</h1>
+            <p className="hero-subtitle">{page.subtitle}</p>
+          </div>
+        </div>
+
+        <div className="env-badge">
+          <span className="dot dot--orange" aria-hidden="true" />
+          <span>{activeGravity.badge}</span>
+        </div>
+      </section>
+    </div>
+  );
+}
