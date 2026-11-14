@@ -20,7 +20,9 @@ ignisai/
 ```
 
 ## Local Installation and Setup
-To run this project locally, use the bash script in ```dev.sh``` to begin all dependecy installations. In order to do this, paste the following command in your terminal:
+**To install the project into your local machine,** ```git clone``` this repository's link into your terminal.
+
+**To run this project locally,** use the bash script in ```dev.sh``` to begin all dependecy installations. In order to do this, paste the following command in your terminal:
 
 ```bash
 ./dev.sh
