@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import './App.css';
+import Chat from './Chat.jsx';
 
 const TABS = [
   { id: 'research', label: '1. Research Explorer' },
   { id: 'predictive', label: '2. Predictive Lab' },
-  
+  { id: 'chat', label: '3. Ask the Data' },
 ];
 
 const GRAVITY_OPTIONS = [
@@ -24,7 +25,11 @@ const PAGE_META = {
     title: 'Predictive Lab',
     subtitle: 'Model the cabin. Understand the flame. Quantify the risk.',
   },
-  
+  chat: {
+    section: 'RAG ASSISTANT / 03',
+    title: 'Ask the Data',
+    subtitle: 'Questions answered from NASA PSI and fire-safety sources.',
+  },
 };
 
 function LogoMark() {
@@ -112,6 +117,8 @@ export default function App() {
           <span>{activeGravity.badge}</span>
         </div>
       </section>
+
+      {activeTab === 'chat' && <Chat />}
     </div>
   );
 }

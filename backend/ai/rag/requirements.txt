@@ -1,0 +1,6 @@
+requests
+scikit-learn
+numpy
+anthropic
+python-dotenv
+beautifulsoup4
