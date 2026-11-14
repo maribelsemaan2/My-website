@@ -9,7 +9,7 @@ cd "$(dirname "$0")"
 [ -f .venv/bin/activate ] && source .venv/bin/activate
 
 # dependencies
-pip install -q -r backend/ai/rag/requirements.txt -r backend/api/requirements.txt
+pip install -q -r backend/ai/rag/requirements.txt -r backend/ai/ml/requirements.txt -r backend/api/requirements.txt
 [ -d frontend/node_modules ] || (cd frontend && npm install)
 
 # RAG data (cached in backend/ai/rag/data, which is gitignored)

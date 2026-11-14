@@ -4,8 +4,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from backend.ai.rag.rag import answer, reload
+from backend.api.ml_routes import router as ml_router
 
 app = FastAPI(title="Ignis AI API")
+app.include_router(ml_router)
 app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173"],
                    allow_methods=["*"], allow_headers=["*"])
 

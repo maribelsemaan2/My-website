@@ -1,0 +1,10 @@
+                   MAE_mm_s  RMSE_mm_s       MSE        R2   MAPE_pct
+Baseline (mean)    0.016183   0.019886  0.000395 -0.111417  37.223636
+Linear regression  0.012508   0.015884  0.000252  0.290853  27.642300
+Ridge              0.012267   0.015643  0.000245  0.312278  26.832483
+Random Forest      0.011738   0.015869  0.000252  0.292229  26.426657
+Gradient Boosting  0.010547   0.013683  0.000187  0.473814  22.116015
+
+Selected: Gradient Boosting
+  RMSE improvement over baseline: 31.2%
+  R2 = 0.474 (0 = no better than predicting the mean)

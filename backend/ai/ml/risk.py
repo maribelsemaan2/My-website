@@ -13,8 +13,9 @@ def qualitative_risk(o2, flow, pred):
         indicators.append({"valueType": "derived_rule", "text": "O2 near normal air (>=20%): spread observed in every ISS test in this range."})
     # hazard: relative to the range of NASA-observed spread rates (derived from data, not invented thresholds)
     p = pred["predicted_spread_rate_mm_s"]
-    level = "Higher within tested range" if p >= 0.0625 else "Moderate within tested range" if p >= 0.0463 else "Lower within tested range"
+    level = "Upper third of observed ISS spread rates" if p >= 0.0625 else "Middle third of observed ISS spread rates" if p >= 0.0463 else "Lower third of observed ISS spread rates"
     return {"hazardIndicator": level,
+            "disclaimer": "A relative position within 52 NASA test results. It is NOT a safety rating: a 'lower' tier does not mean a fire is safe.",
             "hazardBasis": "Predicted spread rate compared with terciles of the 52 NASA-observed ISS spread rates (cut points 0.0463 and 0.0625 mm/s; observed range 0.02-0.10). Relative, not an absolute safety rating.",
             "evidenceConfidence": "Low" if not pred["in_training_range"] else "Medium",
             "indicators": indicators}

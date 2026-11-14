@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import './App.css';
 import Chat from './Chat.jsx';
+import PredictiveLab from './PredictiveLab.jsx';
 
 const TABS = [
   { id: 'research', label: '1. Research Explorer' },
@@ -8,10 +9,9 @@ const TABS = [
   { id: 'chat', label: '3. Ask the Data' },
 ];
 
+// g = gravity level sent to the model. Only ISS microgravity (~0 g) has NASA data behind it.
 const GRAVITY_OPTIONS = [
-
-  { id: 'moon', label: 'Moon Base 0.16g', badge: 'LUNAR HABITAT / 0.16g' },
-  { id: 'mars', label: 'Mars 0.38g', badge: 'MARS SURFACE / 0.38g' },
+  { id: 'iss', label: 'ISS Microgravity ~0g', badge: 'ISS / MICROGRAVITY / ~0g', g: 0 },
 ];
 
 const PAGE_META = {
@@ -49,7 +49,7 @@ function LogoMark() {
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('predictive');
-  const [gravity, setGravity] = useState('moon');
+  const [gravity, setGravity] = useState('iss');
 
   const activeGravity = GRAVITY_OPTIONS.find((g) => g.id === gravity);
   const page = PAGE_META[activeTab];
@@ -118,6 +118,7 @@ export default function App() {
         </div>
       </section>
 
+      {activeTab === 'predictive' && <PredictiveLab gravityOption={activeGravity} />}
       {activeTab === 'chat' && <Chat />}
     </div>
   );

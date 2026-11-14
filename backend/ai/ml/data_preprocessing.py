@@ -1,7 +1,7 @@
 """Load the transcribed NASA BASS-II tables, validate them, save clean files.
-Run: python ml/data_preprocessing.py"""
+Run from the repo root: python -m backend.ai.ml.data_preprocessing"""
 import pandas as pd
-from config import RAW, PROCESSED, TARGET, FEATURES
+from .config import RAW, PROCESSED, TARGET, FEATURES
 
 def load_and_validate():
     ug = pd.read_csv(RAW / "bass2_microgravity_tableS1.csv")

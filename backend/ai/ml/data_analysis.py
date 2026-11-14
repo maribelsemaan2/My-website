@@ -1,7 +1,7 @@
 """Describe the clean data so we know what the model can learn.
-Run: python ml/data_analysis.py"""
+Run from the repo root: python -m backend.ai.ml.data_analysis"""
 import pandas as pd
-from config import PROCESSED, RESULTS, TARGET, FEATURES
+from .config import PROCESSED, RESULTS, TARGET, FEATURES
 
 if __name__ == "__main__":
     RESULTS.mkdir(exist_ok=True)
