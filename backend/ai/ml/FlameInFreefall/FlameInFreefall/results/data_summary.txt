@@ -1,0 +1,45 @@
+== Microgravity dataset summary ==
+rows=52  samples=19
+       o2_percent  opposed_flow_cm_s  rod_diameter_cm  spread_rate_mm_s
+count     52.0000            52.0000          52.0000           52.0000
+mean      18.5596             1.8017           0.8688            0.0542
+std        1.4102             1.3022           0.2576            0.0190
+min       16.8000             0.4100           0.6400            0.0203
+25%       17.5000             1.4175           0.6400            0.0402
+50%       18.2000             1.6100           0.7950            0.0542
+75%       19.6250             1.8975           0.9500            0.0658
+max       20.9000             7.5500           1.2700            0.1000
+
+Spearman correlation with spread rate:
+o2_percent           0.205
+opposed_flow_cm_s    0.500
+rod_diameter_cm     -0.526
+spread_rate_mm_s     1.000
+
+Rows per rod diameter:
+rod_diameter_cm
+0.64    26
+0.95    14
+1.27    12
+
+Rows per sample (clusters):
+sample_id
+B1      2
+B10     3
+B12     4
+B13a    4
+B13b    2
+B14     1
+B15     1
+B16     4
+B19     4
+B2      2
+B22     4
+B4      3
+B5      2
+B6      3
+B9      4
+C25     3
+C3a     2
+C3b     1
+P17     3

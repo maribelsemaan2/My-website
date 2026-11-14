@@ -1,0 +1,19 @@
+S1 missing values per column:
+record_id               0
+source_table            0
+gravity                 0
+sample_id               0
+rod_diameter_cm         0
+o2_percent              0
+opposed_flow_cm_s       0
+duration_s              0
+vf_printed_x1e3_cm_s    0
+spread_rate_mm_s        0
+
+S1 physically invalid rows: 0
+
+S1 duplicate-condition rows: 2
+
+Unit conversion check passed (printed x1e3 cm/s * 0.01 = mm/s)
+
+S2 rows: 46; 'no flame spread' rows KEPT as outcome labels: 9
