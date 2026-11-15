@@ -20,10 +20,17 @@ One S2 (1g) cell is ambiguous (flagged in the `note` column); S2 is not used for
 The model is also served by the main API (`./dev.sh`): `POST /api/predict`, `GET /api/ml/health` (docs at http://localhost:8000/docs).
 The saved model is a pickle; if scikit-learn's version differs from the one that saved it, `predict.py` retrains automatically from the bundled data.
 
-## Evaluation (leave-one-sample-out CV; see results/evaluation_report.txt)
+## Model and evaluation (leave-one-sample-out CV; see results/evaluation_report.txt)
 Rows from the same physical sample are never split between train and test.
-Gradient Boosting: RMSE 0.0137 mm/s vs 0.0199 for predicting the mean (31% lower), R2 = 0.47. The gap to Ridge (0.0156) is small with this little data.
+**Selected: Ridge regression on log(spread rate)** with inputs O2 %, log(flow), log(flow)^2 and rod diameter (a smooth curve; the
+log(flow)^2 term captures spread rate rising then falling with airflow). CV RMSE 0.0133 mm/s vs 0.0199 for predicting the mean
+(33% lower), R2 = 0.51.
+Tree models (Gradient Boosting, Random Forest) are also trained for comparison, but `train_model.py` only ships a model that is
+physically sensible: spread rate must not drop as oxygen rises. The trees fail that check (spurious dips, plateaus, and a ~70% jump
+between adjacent rod diameters) so they are excluded even though Gradient Boosting's raw error is close (0.0137).
+Choosing among 5 models on the same 52 rows is slightly optimistic; treat R2 ~0.5 as an upper estimate.
 Quote RMSE (with units) and R2; we deliberately do not report an "accuracy %".
+The error band is multiplicative (about +/-30% at 1 sd, from the CV residuals) and is doubled outside the tested conditions (a heuristic).
 
 ## Risk indicators
 `risk.py` is rule-based (not ML). The "relative spread rate" tier compares the prediction with terciles of the 52 observed spread rates.

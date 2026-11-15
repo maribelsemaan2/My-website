@@ -27,6 +27,25 @@ def ml_health():
             "train_ranges": b["train_ranges"], "cv_residual_sd_mm_s": b["cv_residual_sd_mm_s"]}
 
 
+class SweepRequest(BaseModel):
+    opposed_flow_cm_s: float = Field(..., gt=0, le=500)
+    rod_diameter_cm: float = Field(..., gt=0, le=5)
+
+
+@router.post("/sweep")
+def sweep_endpoint(s: SweepRequest, steps: int = 42):
+    """Model output across the tested oxygen range at a fixed airflow and rod diameter (for the chart)."""
+    b = _load()
+    lo, hi = b["train_ranges"]["o2_percent"]
+    points = []
+    for i in range(steps + 1):
+        o2 = lo + (hi - lo) * i / steps
+        r = predict(o2, s.opposed_flow_cm_s, s.rod_diameter_cm)
+        points.append({"o2": round(o2, 3), "rate": r["predicted_spread_rate_mm_s"],
+                       "lo": r["range_mm_s"][0], "hi": r["range_mm_s"][1]})
+    return {"points": points, "approxError": b["cv_residual_sd_mm_s"]}
+
+
 @router.post("/predict")
 def predict_endpoint(s: Scenario):
     unsupported = []
