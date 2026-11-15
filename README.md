@@ -14,7 +14,7 @@ The system has two parts, both built on NASA data:
 ```
 ignisai/
 ├── README.md              
-├── frontend/              # web client
+├── frontend/              # web client (includes Giovanna's research)
 └── backend/               # server-side code
     ├── api/               # API layer that serving results to FE
     └── ai/
