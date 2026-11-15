@@ -2,6 +2,7 @@ import { useState } from 'react';
 import './App.css';
 import Chat from './Chat.jsx';
 import PredictiveLab from './PredictiveLab.jsx';
+import ResearchExplorer from './ResearchExplorer.jsx';
 
 const TABS = [
   { id: 'research', label: '1. Research Explorer' },
@@ -118,6 +119,7 @@ export default function App() {
         </div>
       </section>
 
+      {activeTab === 'research' && <ResearchExplorer />}
       {activeTab === 'predictive' && <PredictiveLab gravityOption={activeGravity} />}
       {activeTab === 'chat' && <Chat />}
     </div>
