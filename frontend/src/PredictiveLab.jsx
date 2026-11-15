@@ -8,10 +8,10 @@ import './PredictiveLab.css';
 //   bash backend/ai/ml/run_all.sh                      (once, trains the model)
 //   uvicorn backend.api.main:app --reload --port 8000
 
-const USE_MOCK = true;
+const USE_MOCK = false; // real backend: POST /api/predict and /api/sweep
 // Backend routes live in backend/api/ml_routes.py. The backend only allows the
 // browser origin http://localhost:5173, so open the app at exactly that address.
-const API_BASE = 'http://localhost:8000/api';
+const API_BASE = '/api'; // proxied to the backend by Vite (see vite.config.js)
 const API_URL = `${API_BASE}/predict`;
 const SWEEP_URL = `${API_BASE}/sweep`;
 
@@ -25,7 +25,7 @@ const TRAINED = {
 const APPROX_ERROR = 0.0138; // typical cross-validated error, mm/s
 const ROD_LENGTH_MM = 57;
 
-// Hand-tuned stand-in for the Gradient Boosting model. NOT real NASA output.
+// Hand-tuned stand-in for the real model (only used when USE_MOCK = true). NOT real NASA output.
 // Shape: rises with O2, rises then falls with airflow, falls with thicker rods,
 // clamped to the 0.02–0.10 mm/s range seen in the real data.
 function mockModel(o2, flow, diameter) {
@@ -116,7 +116,7 @@ function buildMockResponse({ o2_percent: o2, opposed_flow_cm_s: flow, rod_diamet
         Number((rate + APPROX_ERROR).toFixed(4)),
       ],
       valueType: 'mock_prediction',
-      model: 'Mock curve (stand-in for Gradient Boosting)',
+      model: 'Mock curve (stand-in for the Ridge model)',
     },
     peakTemperature: {
       available: false,
@@ -174,10 +174,10 @@ async function fetchSweep(flow, diameter, { signal } = {}) {
 /* ===== End API layer ===== */
 
 const MODEL_STATS = [
-  { label: 'MAE', value: '0.0105 mm/s' },
-  { label: 'RMSE', value: '0.0137 mm/s' },
-  { label: 'R²', value: '0.47' },
-  { label: 'MAPE', value: '22.1%' },
+  { label: 'MAE', value: '0.0108 mm/s' },
+  { label: 'RMSE', value: '0.0133 mm/s' },
+  { label: 'R²', value: '0.51' },
+  { label: 'MAPE', value: '21.6%' },
   { label: 'Samples', value: '19 (52 tests)' },
 ];
 
@@ -266,11 +266,11 @@ function SweepChart({ flow, diameter, o2, result }) {
   const err = sweep.approxError;
   const hasData = pts.length > 0;
   const line = pts.map((p, i) => `${i ? 'L' : 'M'}${sx(p.o2).toFixed(1)} ${sy(p.rate).toFixed(1)}`).join(' ');
-  const upper = pts.map((p) => `${sx(p.o2).toFixed(1)} ${sy(Math.min(yMax, p.rate + err)).toFixed(1)}`);
+  const upper = pts.map((p) => `${sx(p.o2).toFixed(1)} ${sy(Math.min(yMax, p.hi ?? p.rate + err)).toFixed(1)}`);
   const lower = pts
     .slice()
     .reverse()
-    .map((p) => `${sx(p.o2).toFixed(1)} ${sy(Math.max(0, p.rate - err)).toFixed(1)}`);
+    .map((p) => `${sx(p.o2).toFixed(1)} ${sy(Math.max(0, p.lo ?? p.rate - err)).toFixed(1)}`);
   const band = `M${upper.join(' L')} L${lower.join(' L')} Z`;
 
   const showMarker = result && o2 >= xLo && o2 <= xHi;
@@ -413,7 +413,7 @@ export default function PredictiveLab({ gravityOption }) {
   const hazard = result?.risk.hazardIndicator ?? '';
   const hazardClass = hazard.startsWith('Lower')
     ? 'hazard--low'
-    : hazard.startsWith('Higher')
+    : hazard.startsWith('Higher') || hazard.startsWith('Upper')
     ? 'hazard--high'
     : 'hazard--mid';
   const confClass = result?.confidence === 'Low' ? 'conf--low' : 'conf--mid';
@@ -582,7 +582,7 @@ export default function PredictiveLab({ gravityOption }) {
           ))}
         </dl>
         <p className="caption">
-          Gradient Boosting, leave-one-sample-out validation, trained on NASA BASS-II ISS tests (Link et al., 2018).
+          Ridge regression on log(spread rate), leave-one-sample-out validation, trained on NASA BASS-II ISS tests (Link et al., 2018).
           {USE_MOCK && ' The values above are produced by a mock curve until the backend is connected.'}
         </p>
       </div>
